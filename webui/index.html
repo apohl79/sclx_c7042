@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html ng-app="sclx">
+  <head>
+    <title>Scalextric C7042 Racing</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="lib/font-awesome-4.2.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="lib/ng-modal.css" media="all" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <script type="text/javascript" src="lib/angular.min.js"></script>
+    <script type="text/javascript" src="lib/ng-modal.min.js"></script>
+    <script type="text/javascript" src="lib/angu-fixed-header-table.js"></script>
+    <script type="text/javascript" src="lib/angular.audio.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+  </head>
+  <body ng-controller="sclx_ctrl as sclx">
+    <!-- Navbar -->
+    <div class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <p class="navbar-brand">Scalextric C7042 Racing</p>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href ng-click="sclx.game.show_settings = true"><i class="fa fa-wrench fa-2x"></i></a></li>
+        </ul>
+      </div>
+    </div>
+    <table border="0" width="100%">
+      <tr>
+        <td valign="bottom" width="33%">&nbsp;<h3>&nbsp;<i class="fa fa-tachometer fa-2x"></i>&nbsp;&nbsp;{{sclx.game.state}}</h3></td>
+        <td class="text-center" width="33%"><h1><i class="fa fa-clock-o fa-2x">&nbsp;{{sclx.game.time | sclx_time_clock}}</i></h1></td>
+        <td valign="bottom" width="33%"><h3 class="pull-right">Runden: {{sclx.game.laps}}&nbsp;<i class="fa fa-history fa-2x"></i>&nbsp;</h3></td>
+      </tr>
+    </table>
+    
+    <p>&nbsp;</p>
+    
+    <!-- Positions -->
+    <div class="container-fluid">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <td width="20%"><big><b><i class="fa fa-trophy fa-1x"></i>&nbsp;Position</b></big></td>
+            <td width="20%"><big><b><i class="fa fa-car fa-1x"></i>&nbsp;Fahrer / Auto</b></big></td>
+            <td width="20%"><big><b><i class="fa fa-history fa-1x"></i>&nbsp;Runde</b></big></td>
+            <td width="20%"><big><b><i class="fa fa-flag fa-1x"></i>&nbsp;Letzte Runde</b></big></td>
+            <td width="20%"><big><b><i class="fa fa-flag fa-1x"></i>&nbsp;Beste Runde</b></big></td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="id in sclx.game.positions">
+            <td>{{$index + 1}}</td>
+            <td>{{sclx.game.drivers[sclx.game.controllers[id].driver].name}} (Controller {{id}})</td>
+            <td>{{sclx.game.cars[id].laps}}</td>
+            <td>{{sclx.game.cars[id].last_time | sclx_time_car}}</td>
+            <td>{{sclx.game.cars[id].best_time | sclx_time_car}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Countdown -->
+    <modal-dialog show="sclx.game.countdown_number > 0" width="365px" dialog-title="Neues Rennen ...">
+      <center>
+        <img ng-src="{{sclx.game.countdown_images[sclx.game.countdown_number - 1]}}" />
+        <img ng-src="{{sclx.game.countdown_images[sclx.game.countdown_number - 1]}}" />
+        <img ng-src="{{sclx.game.countdown_images[sclx.game.countdown_number - 1]}}" />
+        <img ng-src="{{sclx.game.countdown_images[sclx.game.countdown_number - 1]}}" />
+        <img ng-src="{{sclx.game.countdown_images[sclx.game.countdown_number - 1]}}" />
+      </center>
+    </modal-dialog>
+
+    <!-- Finished -->
+    <modal-dialog show="sclx.game.show_game_finished" width="600px" dialog-title="Rennende">
+      <table class="table table-striped">
+        <tr>
+          <td><i class="fa fa-trophy fa-4x"></i></td><td align="right"><h1>{{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[0]].driver].name}}</h1></td>
+        </tr>
+        <tr>
+          <td><h2>2. Platz:</h2></td><td align="right"><h2>{{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[1]].driver].name}}</h2></td>
+        </tr>
+        <tr>
+          <td><h3>3. Platz:</h3></td><td align="right"><h3>{{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[2]].driver].name}}</h3></td>
+        </tr>
+      </table>
+    </modal-dialog>
+
+    <!-- False Start -->
+    <modal-dialog show="sclx.game.show_false_start" width="400px" dialog-title="Abbruch">
+      <i class="fa fa-exclamation-triangle fa-4x">&nbsp;Fehlstart</i>
+      <table class="table table-striped">
+        <tr>
+          <td><h3><big><b>Fahrer:</b></big></h3></td><td align="right"><h3>{{sclx.game.drivers[sclx.game.controllers[sclx.game.false_start_id].driver].name}}</h3></td>
+        </tr>
+      </table>
+    </modal-dialog>
+
+    <!-- Settings -->
+    <modal-dialog show="sclx.game.show_settings" width="600px" height="600px" dialog-title="Einstellungen">
+      <form name="settings_form" ng-submit="sclx.save_settings()">
+        <!-- Controller -->
+        <section ng-init="tab = 1">
+          <ul class="nav nav-tabs nav-justified">
+            <li ng-class="{active:tab === 1}"><a href ng-click="tab = 1">Controller</a></li>
+            <li ng-class="{active:tab === 2}"><a href ng-click="tab = 2">Fahrer</a></li>
+          </ul>
+          <div class="panel" ng-show="tab === 1">
+            <div class="panel-body">
+              <table class="table table-hover">
+                <thead>
+                  <td><i class="fa fa-gamepad fa-1x"></i></td>
+                  <td><big><b>Fahrer</b></big></td>
+                  <td><big><b>Begrenzung</b></big></td>
+                  <td><big><b>Verbunden</b></big></td>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="ctrl in sclx.game.controllers">
+                    <td class="text-center" width="30px">{{ctrl.id}}</td>
+                    <td width="300px">
+                      <select class="form-control" ng-model="ctrl.driver">
+                        <option ng-repeat="driver in sclx.game.drivers" ng-selected="{{driver.id == ctrl.driver}}" value="{{driver.id}}">{{driver.name}}</option>
+                      </select>
+                    </td>
+                    <td class="text-right">{{sclx.game.drivers[ctrl.driver].power}} %</td>
+                    <td class="text-center">
+                      <div ng-show="sclx.game.controllers[$index].connected"><i class="fa fa-toggle-on fa-2x"></i></div>
+                      <div ng-hide="sclx.game.controllers[$index].connected"><i class="fa fa-toggle-off fa-2x"></i></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Drivers -->
+          <div class="panel" ng-show="tab === 2">
+            <div class="panel-body">
+              <table class="table table-hover" table-height="306px" fixed-header>
+                <thead>
+                  <tr>
+                    <td width="65px" class="text-center"><i class="fa fa-image fa-1x"></i></td>
+                    <td width="280px"><big><b>Name</b></big></td>
+                    <td width="100px"><big><b>Begrenzung</b></big></td>
+                    <td></td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="driver in sclx.game.drivers">
+                    <td width="50px">
+                      <img ng-src="{{driver.image}}" width="50px" />
+                    </td>
+                    <td width="280px">
+                      <input class="form-control" ng-model="driver.name" placeholder="Name des Fahrers" />
+                    </td>
+                    <td width="100px">
+                        <input type="number" min="10" max="100" class="form-control" ng-model="driver.power"/>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-default" ng-click="sclx.delete_driver(driver.id)" ng-hide="sclx.game.drivers[driver.id].id == 0">L&ouml;schen</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="text-right"><a href ng-click="sclx.add_driver()"><i class="fa fa-plus-square fa-2x"></i></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+        <input type="submit" class="btn btn-default btn-lg pull-right" value="Speichern" />
+      </form>
+    </modal-dialog>
+  </body>
+</html>
