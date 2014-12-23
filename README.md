@@ -29,6 +29,7 @@ cd webui/lib
 ./fetch-deps.sh
 cd ../..
 
+# Compile
 mkdir build
 cd build
 cmake
