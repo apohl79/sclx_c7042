@@ -1,7 +1,7 @@
 SCLX C7042 Racing
 =================
 
-An open source race control for the C7042 power base of Scalextric.
+An open source race control for the C7042 power base by Scalextric.
 
 The backend is written in C++ using an event driven model. You should be able to compile it on a recent linux/unix. The current websocket implementation does probably not work on a raspberry pi, but it will get replaced. The UI is written as an AngularJS app that runs on every modern browser/device. The frontend is talking to the backend via websockets to allow for real time updates.
 
