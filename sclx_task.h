@@ -14,7 +14,7 @@
 
 class sclx_task : public tasks::serial_io_task {
   public:
-    enum class game_state_t : std::uint8_t { STOPPED, COUNTDOWN, RACE, STARTING, TRAINING };
+    enum class game_state_t : std::uint8_t { STOPPED, COUNTDOWN, RACE, STARTING, TRAINING, BINDING };
 
     // car gaming data
     struct car_data_t {
@@ -62,6 +62,14 @@ class sclx_task : public tasks::serial_io_task {
             set_game_state(game_state_t::STARTING);
             m_game.reset = 1;
         }
+    }
+
+    void bind_car(std::uint8_t id) {
+        set_game_state(game_state_t::STOPPED);
+        set_game_state(game_state_t::BINDING);
+        m_game.reset = 1;
+        m_bind_id = id;
+        m_bind_start = std::chrono::steady_clock::now();
     }
 
     void training() {
@@ -157,6 +165,9 @@ class sclx_task : public tasks::serial_io_task {
     game_data_t m_game;
     car_data_t m_cars[6];
     bool m_ctrl_connected[6] = {false, false, false, false, false, false};
+
+    std::uint8_t m_bind_id = 6;
+    std::chrono::steady_clock::time_point m_bind_start;
 
     // event handlers
     button_func_t m_on_button_func = [](auto) {};

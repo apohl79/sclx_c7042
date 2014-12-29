@@ -253,6 +253,9 @@ std::string game_state_to_string(sclx_task::game_state_t state) {
         case sclx_task::game_state_t::TRAINING:
             return "TRAINING";
             break;
+        case sclx_task::game_state_t::BINDING:
+            return "BINDING";
+            break;
     }
 }
 
@@ -309,6 +312,9 @@ void handle_message(std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::
                     sclx->set_power_rate(id, driver_map[controllers[id].driver]->power);
                 }
                 save_settings();
+            } else if (root["type"].asString() == "bind_car") {
+                std::uint8_t id = root["id"].asInt();
+                sclx->bind_car(id);
             }
         }
     }

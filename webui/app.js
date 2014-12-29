@@ -34,6 +34,7 @@ var game = {
     drivers: [
         { id: 0, name: "Unbekannt", power: 100, image: 'images/driver.png' },
     ],
+    bind_car_id: 6
 }; 
 
 app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout) {
@@ -55,6 +56,12 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
         case "COUNTDOWN":
             state = "Achtung";
             break;
+        case "BINDING":
+            state = "Programmierung";
+            break;
+        }
+        if (game.state == "Programmierung") {
+            $rootScope.$apply(game.bind_car_id = 6);
         }
         $rootScope.$apply(game.state = state);
     }
@@ -109,7 +116,9 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
     }
 
     function on_settings(obj) {
-        $rootScope.$apply(game.drivers = obj.drivers);
+        if (obj.drivers && obj.drivers.length > 0) {
+            $rootScope.$apply(game.drivers = obj.drivers);
+        }
         $rootScope.$apply(game.controllers = obj.controllers);        
     }
 
@@ -201,6 +210,13 @@ app.controller('sclx_ctrl', ['$rootScope', 'backend', 'ngAudio', function($rootS
                 return;
             }
         }
+    };
+    this.bind_car = function(id) {
+        this.game.bind_car_id = id;
+        backend.send({
+            type: "bind_car",
+            id: id
+        });
     };
 }]);
 

@@ -96,7 +96,7 @@
     </modal-dialog>
 
     <!-- Settings -->
-    <modal-dialog show="sclx.game.show_settings" width="600px" height="600px" dialog-title="Einstellungen">
+    <modal-dialog show="sclx.game.show_settings" width="680px" height="600px" dialog-title="Einstellungen">
       <form name="settings_form" ng-submit="sclx.save_settings()">
         <!-- Controller -->
         <section ng-init="tab = 1">
@@ -112,6 +112,7 @@
                   <td><big><b>Fahrer</b></big></td>
                   <td><big><b>Begrenzung</b></big></td>
                   <td><big><b>Verbunden</b></big></td>
+                  <td><big><b>Autozuordnung</b></big></td>
                 </thead>
                 <tbody>
                   <tr ng-repeat="ctrl in sclx.game.controllers">
@@ -126,6 +127,18 @@
                       <div ng-show="sclx.game.controllers[$index].connected"><i class="fa fa-toggle-on fa-2x"></i></div>
                       <div ng-hide="sclx.game.controllers[$index].connected"><i class="fa fa-toggle-off fa-2x"></i></div>
                     </td>
+                    <td class="text-center">
+                      <div ng-hide="sclx.game.bind_car_id == $index">
+                        <i class="fa fa-car fa-2x"></i>
+                        <a href ng-click="sclx.bind_car($index)"><i class="fa fa-refresh fa-2x"></i></a>
+                        <i class="fa fa-gamepad fa-2x"></i>
+                      </div>
+                      <div ng-show="sclx.game.bind_car_id == $index">
+                        <i class="fa fa-car fa-2x"></i>
+                        <i class="fa fa-refresh fa-spin fa-2x"></i>
+                        <i class="fa fa-gamepad fa-2x"></i>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -138,7 +151,7 @@
                 <thead>
                   <tr>
                     <td width="65px" class="text-center"><i class="fa fa-image fa-1x"></i></td>
-                    <td width="280px"><big><b>Name</b></big></td>
+                    <td width="360px"><big><b>Name</b></big></td>
                     <td width="100px"><big><b>Begrenzung</b></big></td>
                     <td></td>
                   </tr>
@@ -148,14 +161,14 @@
                     <td width="50px">
                       <img ng-src="{{driver.image}}" width="50px" />
                     </td>
-                    <td width="280px">
-                      <input class="form-control" ng-model="driver.name" placeholder="Name des Fahrers" />
+                    <td width="360px">
+                      <input class="form-control" ng-model="driver.name" placeholder="Name des Fahrers" ng-disabled="driver.name === 'Unbekannt'" />
                     </td>
                     <td width="100px">
                         <input type="number" min="10" max="100" class="form-control" ng-model="driver.power"/>
                     </td>
                     <td>
-                      <button type="button" class="btn btn-default" ng-click="sclx.delete_driver(driver.id)" ng-hide="sclx.game.drivers[driver.id].id == 0">L&ouml;schen</button>
+                      <button type="button" class="btn btn-default" ng-click="sclx.delete_driver(driver.id)" ng-disabled="driver.name === 'Unbekannt'">L&ouml;schen</button>
                     </td>
                   </tr>
                   <tr>

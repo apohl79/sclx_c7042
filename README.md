@@ -7,12 +7,15 @@ The backend is written in C++ using an event driven model. You should be able to
 
 The project is work in progress. A lot of things are missing, but you can
 
+- assign cars to controllers,
 - setup drivers,
 - limit the max power/speed per driver,
-- assign them to controllers
+- assign drivers to controllers
 - and finally drive races against each other!
 
 Have fun! :-)
+
+Note: To assign cars to controllers you will need at least firmware version 1.07 [http://ssdc.jackaments.com/firmware.shtml](http://ssdc.jackaments.com/firmware.shtml).
 
 Setup
 -----

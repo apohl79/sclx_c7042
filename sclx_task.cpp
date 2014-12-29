@@ -92,14 +92,24 @@ void sclx_task::handle_data() {
         return;
     }
 
-    // always actiavte the LED for connected handsets
-    update_leds();
-    // check for handset updates
-    update_handsets();
-    // game data
-    update_game();
-    // powerbase button events
-    update_buttons();
+    if (m_game.state == game_state_t::BINDING) {
+        auto dif = std::chrono::duration_cast<std::chrono::seconds>(m_last_update - m_bind_start).count();
+        if (dif < 3) {
+            m_out.packet().led_status = sclx::LED_RED | (1 << m_bind_id);
+        } else {
+            set_game_state(game_state_t::TRAINING);
+            m_game.reset = 1;
+        }
+    } else {
+        // always actiavte the LED for connected handsets
+        update_leds();
+        // check for handset updates
+        update_handsets();
+        // game data
+        update_game();
+        // powerbase button events
+        update_buttons();
+    }
 
     if (in_last.packet().aux_current != in_cur.packet().aux_current) {
         terr("aux_current changed" << std::endl);
@@ -153,15 +163,12 @@ void sclx_task::set_game_state(game_state_t state) {
                     set_lane_change(i, false);
                 }
                 break;
-            case game_state_t::COUNTDOWN:
-                reset_game_data();
-                break;
-            case game_state_t::STARTING:
-                reset_game_data();
-                break;
             case game_state_t::RACE:
                 break;
+            case game_state_t::COUNTDOWN:
+            case game_state_t::STARTING:
             case game_state_t::TRAINING:
+            case game_state_t::BINDING:
                 reset_game_data();
                 break;
         }
