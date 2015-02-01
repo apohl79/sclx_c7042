@@ -120,6 +120,9 @@ class sclx_task : public tasks::serial_io_task {
     }
 
   private:
+    std::string m_port;
+    bool m_powerbase_connected = false;
+
     // used to order cars by position
     struct car_ref_t {
         std::uint8_t id;

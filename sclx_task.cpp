@@ -18,10 +18,11 @@
 
 sclx_task::sclx_task(std::string port)
     : serial_io_task(EV_WRITE),
+      m_port(port),
       m_last_update(std::chrono::steady_clock::now()),
       m_game_reset(false),
       m_game_start(false) {
-    term().open(port, B19200, tasks::serial::termmode_t::_8N1);
+    term().open(m_port, B19200, tasks::serial::termmode_t::_8N1);
 
     // default power rate is 100%
     for (std::uint8_t i = 0; i < 6; i++) {
@@ -37,6 +38,13 @@ bool sclx_task::handle_event(tasks::worker* worker, int events) {
     bool success = true;
     try {
         if (EV_READ & events) {
+            if (!m_powerbase_connected) {
+                terr("powerbase connected" << std::endl);
+                m_powerbase_connected = true;
+                reset_game_data();
+                m_game.reset = 1;
+                m_game.state = game_state_t::TRAINING;
+            }
             in_cur.read(term());
             if (in_cur.done()) {
                 // Switch the incoming packets
@@ -178,6 +186,12 @@ void sclx_task::set_game_state(game_state_t state) {
 }
 
 void sclx_task::cycle_reset(tasks::worker* worker) {
+    if (m_powerbase_connected) {
+        terr("powerbase disconnected" << std::endl);
+        m_powerbase_connected = false;
+    }
+    term().close();
+    term().open(m_port, B19200, tasks::serial::termmode_t::_8N1);
     in_cur.reset();
     m_out.reset();
     set_events(EV_WRITE);
@@ -233,7 +247,8 @@ void sclx_task::set_power_rate(std::uint8_t carid, std::uint8_t percentage) {
     if (carid < 6 && percentage > 0 && percentage <= 100) {
         m_cars[carid].power_rate = percentage;
     } else {
-        throw tasks::tasks_exception("set_power_rate: invalid input data");
+        throw tasks::tasks_exception("set_power_rate: invalid input data: carid=" + std::to_string((int)carid) +
+                                     " percentage=" + std::to_string((int) percentage));
     }
 }
 

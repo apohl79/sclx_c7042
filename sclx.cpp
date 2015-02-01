@@ -43,8 +43,7 @@ struct controller_t {
     }
 };
 
-std::vector<driver_t> drivers;
-std::unordered_map<int, driver_t*> driver_map;
+std::map<int, driver_t> driver_map;
 controller_t controllers[6];
 
 void load_settings() {
@@ -61,13 +60,17 @@ void load_settings() {
                 driver.name = tmp[i]["name"].asString();
                 driver.power = tmp[i]["power"].asInt();
                 driver.image = tmp[i]["image"].asString();
-                drivers.push_back(driver);
-                driver_map[driver.id] = &drivers.back();
+                driver_map[driver.id] = driver;
             }
             tmp = root["controllers"];
             for (Json::ArrayIndex i = 0; i < tmp.size(); i++) {
                 int id = tmp[i]["id"].asInt();
-                controllers[id].driver = tmp[i]["driver"].asInt();
+                int driverid = tmp[i]["driver"].asInt();
+                controllers[id].driver = driverid;
+                sclx->set_power_rate(id, driver_map[driverid].power);
+            }
+            if (root.isMember("laps")) {
+                laps = root["laps"].asInt();
             }
             terr("loaded settings from " << settings_path << std::endl);
         }
@@ -77,12 +80,12 @@ void load_settings() {
 void save_settings() {
     Json::Value root;
     root["type"] = "settings";
-    for (auto& driver : drivers) {
+    for (auto& driver : driver_map) {
         Json::Value drv;
-        drv["id"] = driver.id;
-        drv["name"] = driver.name;
-        drv["power"] = driver.power;
-        drv["image"] = driver.image;
+        drv["id"] = driver.second.id;
+        drv["name"] = driver.second.name;
+        drv["power"] = driver.second.power;
+        drv["image"] = driver.second.image;
         root["drivers"].append(drv);
     }
     for (int i = 0; i < 6; i++) {
@@ -91,6 +94,7 @@ void save_settings() {
         ctrl["driver"] = controllers[i].driver;
         root["controllers"].append(ctrl);
     }
+    root["laps"] = laps;
     std::ofstream file;
     file.open(settings_path);
     if (file.good()) {
@@ -174,6 +178,8 @@ void button_press(std::uint8_t btn) {
             root["type"] = "laps_update";
             root["laps"] = laps;
             write_json_to_ws(root);
+            // save it
+            save_settings();
             break;
         }
         case sclx::BTN_DOWN: {
@@ -184,6 +190,8 @@ void button_press(std::uint8_t btn) {
                 root["type"] = "laps_update";
                 root["laps"] = laps;
                 write_json_to_ws(root);
+                // save it
+                save_settings();
             }
             break;
         }
@@ -288,7 +296,6 @@ void handle_message(std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::
         if (root.isMember("type")) {
             if (root["type"].asString() == "settings") {
                 // settings update
-                drivers.clear();
                 driver_map.clear();
                 Json::Value tmp = root["drivers"];
                 for (Json::ArrayIndex i = 0; i < tmp.size(); i++) {
@@ -297,8 +304,7 @@ void handle_message(std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::
                     driver.name = tmp[i]["name"].asString();
                     driver.power = tmp[i]["power"].asInt();
                     driver.image = tmp[i]["image"].asString();
-                    drivers.push_back(driver);
-                    driver_map[driver.id] = &drivers.back();
+                    driver_map[driver.id] = driver;
                 }
                 tmp = root["controllers"];
                 for (Json::ArrayIndex i = 0; i < tmp.size(); i++) {
@@ -309,7 +315,7 @@ void handle_message(std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::
                     } else {
                         controllers[id].driver = v.asInt();
                     }
-                    sclx->set_power_rate(id, driver_map[controllers[id].driver]->power);
+                    sclx->set_power_rate(id, driver_map[controllers[id].driver].power);
                 }
                 save_settings();
             } else if (root["type"].asString() == "bind_car") {
@@ -325,8 +331,6 @@ int main(int argc, char** argv) {
         std::cerr << "Usage: " << argv[0] << " <serial device>" << std::endl;
         return 1;
     }
-
-    load_settings();
 
     // create an endpoint
     auto& ws = sclx_ws.endpoint["^/sclx/?$"];
@@ -347,25 +351,23 @@ int main(int argc, char** argv) {
         sclx->on_game_update(game_update);
         sclx->on_game_state_change(game_state_change);
         sclx->on_controller_change(controller_change);
-
         disp->add_task(sclx);
         sclx_cycle_task* cycle = new sclx_cycle_task(sclx, 1.);
         disp->add_task(cycle);
 
-        sclx->set_power_rate(0, 30);
-        sclx->set_power_rate(5, 35);
+        load_settings();
 
         // send the game state on a new connection
         ws.onopen = [](auto conn) {
             terr("new client, sending settings and game state" << std::endl);
             Json::Value root;
             root["type"] = "settings";
-            for (auto& driver : drivers) {
+            for (auto& driver : driver_map) {
                 Json::Value drv;
-                drv["id"] = driver.id;
-                drv["name"] = driver.name;
-                drv["power"] = driver.power;
-                drv["image"] = driver.image;
+                drv["id"] = driver.second.id;
+                drv["name"] = driver.second.name;
+                drv["power"] = driver.second.power;
+                drv["image"] = driver.second.image;
                 root["drivers"].append(drv);
             }
             for (int i = 0; i < 6; i++) {
