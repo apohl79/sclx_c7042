@@ -29,7 +29,8 @@ class sclx_out {
         if (bytes >= 0) {
             m_written += bytes;
         } else {
-            throw tasks::serial::term_exception("write failed: " + std::string(std::strerror(errno)));
+            throw tasks::tasks_exception(tasks::tasks_error::UNSET,
+                                         "write failed: " + std::string(std::strerror(errno)), errno);
         }
     }
 

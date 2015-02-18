@@ -47,7 +47,8 @@ class sclx_task : public tasks::serial_io_task {
     
     void game_init(uint8_t laps, std::vector<std::uint8_t> carids) {
         if (carids.size() < 1) {
-            throw tasks::tasks_exception("game_start: you need at least 1 car to start a game");
+            throw tasks::tasks_exception(tasks::tasks_error::UNSET,
+                                         "game_start: you need at least 1 car to start a game");
         }
         m_game.laps = laps;
         m_game.active_cars = carids.size();

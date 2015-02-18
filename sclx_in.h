@@ -29,7 +29,8 @@ class sclx_in {
         if (bytes >= 0) {
             m_read += bytes;
         } else {
-            throw tasks::serial::term_exception("read failed: " + std::string(std::strerror(errno)));
+            throw tasks::tasks_exception(tasks::tasks_error::UNSET, "read failed: " + std::string(std::strerror(errno)),
+                                         errno);
         }
     }
 

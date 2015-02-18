@@ -209,8 +209,8 @@ void sclx_task::set_drive_data(std::uint8_t carid, bool enable, std::uint8_t bit
         }
         m_out.packet().drive[carid] = ~drive;
     } else {
-        throw tasks::tasks_exception(std::string("set_drive_data: invalid carid ") +
-                                     std::to_string(static_cast<int>(carid)));
+        throw tasks::tasks_exception(tasks::tasks_error::UNSET, std::string("set_drive_data: invalid carid ") +
+                                                                    std::to_string(static_cast<int>(carid)));
     }
 }
 
@@ -234,12 +234,12 @@ void sclx_task::set_power(std::uint8_t carid, std::uint8_t power) {
             drive += power;
             m_out.packet().drive[carid] = ~drive;
         } else {
-            throw tasks::tasks_exception(std::string("set_power: invalid power value ") +
-                                         std::to_string(static_cast<int>(power)));
+            throw tasks::tasks_exception(tasks::tasks_error::UNSET, std::string("set_power: invalid power value ") +
+                                                                        std::to_string(static_cast<int>(power)));
         }
     } else {
-        throw tasks::tasks_exception(std::string("set_power: invalid carid ") +
-                                     std::to_string(static_cast<int>(carid)));
+        throw tasks::tasks_exception(tasks::tasks_error::UNSET, std::string("set_power: invalid carid ") +
+                                                                    std::to_string(static_cast<int>(carid)));
     }
 }
 
@@ -247,8 +247,9 @@ void sclx_task::set_power_rate(std::uint8_t carid, std::uint8_t percentage) {
     if (carid < 6 && percentage > 0 && percentage <= 100) {
         m_cars[carid].power_rate = percentage;
     } else {
-        throw tasks::tasks_exception("set_power_rate: invalid input data: carid=" + std::to_string((int)carid) +
-                                     " percentage=" + std::to_string((int) percentage));
+        throw tasks::tasks_exception(tasks::tasks_error::UNSET, "set_power_rate: invalid input data: carid=" +
+                                                                    std::to_string((int)carid) + " percentage=" +
+                                                                    std::to_string((int)percentage));
     }
 }
 
