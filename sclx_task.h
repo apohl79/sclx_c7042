@@ -174,16 +174,17 @@ class sclx_task : public tasks::serial_io_task {
     std::chrono::steady_clock::time_point m_bind_start;
 
     // event handlers
-    button_func_t m_on_button_func = [](auto) {};
-    state_func_t m_on_state_func = [](auto) {};
-    lap_func_t m_on_lap_func = [](auto, auto, auto, auto) {};
-    false_start_func_t m_on_false_start_func = [](auto) {};
-    game_update_func_t m_on_game_finished_func = [](auto, auto&) {};
-    game_update_func_t m_on_game_update_func = [](auto, auto&) {};
-    controller_func_t m_on_controller_func = [] (auto, auto) {};
+    button_func_t m_on_button_func = [](std::uint8_t) {};
+    state_func_t m_on_state_func = [](game_state_t) {};
+    lap_func_t m_on_lap_func = [](std::uint8_t, std::uint8_t, std::uint64_t, bool) {};
+    false_start_func_t m_on_false_start_func = [](std::uint8_t) {};
+    game_update_func_t m_on_game_finished_func = [](std::uint64_t, std::vector<std::uint8_t>&) {};
+    game_update_func_t m_on_game_update_func = [](std::uint64_t, std::vector<std::uint8_t>&) {};
+    controller_func_t m_on_controller_func = [] (std::uint8_t, bool) {};
 
-    inline void
-    switch_in_packets() {
+    void init_term();
+
+    inline void switch_in_packets() {
         if (m_in_cur) {
             m_in_cur = 0;
             m_in_last = 1;

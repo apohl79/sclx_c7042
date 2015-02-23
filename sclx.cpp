@@ -6,7 +6,7 @@
 #include <vector>
 #include <unordered_map>
 
-#define _WITH_PUT_TIME
+//#define _WITH_PUT_TIME
 #define _WITH_SHORT_LOG
 #include <tasks/logging.h>
 
@@ -26,6 +26,9 @@ std::atomic<bool> starting;
 SimpleWeb::SocketServer<SimpleWeb::WS> sclx_ws(8383, 2);
 std::mutex mtx_ws;
 std::string settings_path("settings.json");
+
+using connection_ptr_t = std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::Connection>;
+using message_ptr_t = std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::Message>;
 
 struct driver_t {
     int id;
@@ -104,8 +107,7 @@ void save_settings() {
     }
 }
 
-void write_json_to_ws(Json::Value& root,
-                      std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::Connection> conn = nullptr) {
+void write_json_to_ws(Json::Value& root, connection_ptr_t conn = nullptr) {
     Json::FastWriter writer;
     std::stringstream out;
     out << writer.write(root);
@@ -265,6 +267,7 @@ std::string game_state_to_string(sclx_task::game_state_t state) {
             return "BINDING";
             break;
     }
+    return "";
 }
 
 void game_state_change(sclx_task::game_state_t state) {
@@ -283,8 +286,7 @@ void controller_change(std::uint8_t id, bool connected) {
     write_json_to_ws(root);
 }
 
-void handle_message(std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::Connection> conn,
-                    std::shared_ptr<SimpleWeb::SocketServerBase<SimpleWeb::WS>::Message> msg) {
+void handle_message(connection_ptr_t conn, message_ptr_t msg) {
     std::stringstream data;
     msg->data >> data.rdbuf();
 
@@ -358,7 +360,7 @@ int main(int argc, char** argv) {
         load_settings();
 
         // send the game state on a new connection
-        ws.onopen = [](auto conn) {
+        ws.onopen = [](connection_ptr_t conn) {
             terr("new client, sending settings and game state" << std::endl);
             Json::Value root;
             root["type"] = "settings";

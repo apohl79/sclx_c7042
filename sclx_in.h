@@ -39,7 +39,9 @@ class sclx_in {
     inline void reset() { m_read = 0; }
 
     inline packet_t& packet() { return m_packet; }
-    
+
+    inline std::streamsize size() const { return m_size; }
+
   private:
     packet_t m_packet;
     char* m_data_p;

@@ -4,7 +4,7 @@
 #include <thread>
 #include <chrono>
 
-#define _WITH_PUT_TIME
+//#define _WITH_PUT_TIME
 #define _WITH_SHORT_LOG
 #include <tasks/logging.h>
 
@@ -22,7 +22,8 @@ sclx_task::sclx_task(std::string port)
       m_last_update(std::chrono::steady_clock::now()),
       m_game_reset(false),
       m_game_start(false) {
-    term().open(m_port, B19200, tasks::serial::termmode_t::_8N1);
+
+    init_term();
 
     // default power rate is 100%
     for (std::uint8_t i = 0; i < 6; i++) {
@@ -32,6 +33,19 @@ sclx_task::sclx_task(std::string port)
     reset_game_data();
     m_game.reset = 1;
     m_game.state = game_state_t::TRAINING;
+}
+
+void sclx_task::init_term() {
+    term().open(m_port, B19200, tasks::serial::termmode_t::_8N1);
+
+    // update term settings
+    struct termios opts = term().options();
+    opts.c_iflag &= ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK | ISTRIP | IXON);
+    opts.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
+    opts.c_oflag = 0;
+    opts.c_cc[VTIME] = 0;
+    opts.c_cc[VMIN] = in_cur.size();
+    term().set_options(opts);
 }
 
 bool sclx_task::handle_event(tasks::worker* worker, int events) {
@@ -191,7 +205,7 @@ void sclx_task::cycle_reset(tasks::worker* worker) {
         m_powerbase_connected = false;
     }
     term().close();
-    term().open(m_port, B19200, tasks::serial::termmode_t::_8N1);
+    init_term();
     in_cur.reset();
     m_out.reset();
     set_events(EV_WRITE);

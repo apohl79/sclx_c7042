@@ -29,3 +29,6 @@ target_link_libraries(${PROJECT_NAME} ${TASKS_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${JSONCPP_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${OPENSSL_CRYPTO_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} pthread)
+
+install(PROGRAMS ${PROJECT_BINARY_DIR}/${PROJECT_NAME} DESTINATION bin)
