@@ -14,6 +14,7 @@ var game = {
     show_false_start: false,
     false_start_id: 0,
     show_settings: false,
+    we_have_a_winner: false,
     positions: [],
     cars: [
         { id: 0, laps: 0, last_time: 0, best_time: 0 },
@@ -76,7 +77,6 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
     }
     
     function on_game_finished(obj) {
-        $rootScope.game_finish_sound.play();
         $rootScope.$apply(game.time = obj.time);
         $rootScope.$apply(game.positions = obj.positions);
         $rootScope.$apply(game.show_game_finished = true);
@@ -84,6 +84,12 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
     }
     
     function on_lap_count(obj) {
+        if (game.state == "Rennen" && obj.lap == game.laps && !game.we_have_a_winner) {
+            $rootScope.game_finish_sound.play();
+            $rootScope.$apply(game.we_have_a_winner = true);
+        } else {
+            $rootScope.game_lap_sound.play();
+        }
         $rootScope.$apply(game.cars[obj.id].laps = obj.lap);
         $rootScope.$apply(game.cars[obj.id].last_time = obj.lap_time);
         if (obj.record) {
@@ -105,6 +111,7 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
     function on_countdown(obj) {
         $rootScope.$apply(game.countdown_number = obj.number);
         if (obj.number == 4) {
+            $rootScope.$apply(game.we_have_a_winner = false);
             for(var i = 0; i < 6; i++) {
                 $rootScope.$apply(game.cars[i].laps = 0);
                 $rootScope.$apply(game.cars[i].last_time = 0);
@@ -185,6 +192,7 @@ app.controller('sclx_ctrl', ['$rootScope', 'backend', 'ngAudio', function($rootS
     $rootScope.game_start_sound = ngAudio.load("sounds/start.wav");
     $rootScope.game_start_sound2 = ngAudio.load("sounds/start2.wav");
     $rootScope.game_finish_sound = ngAudio.load("sounds/finish.wav");
+    $rootScope.game_lap_sound = ngAudio.load("sounds/lap.wav");
 
     this.save_settings = function() {
         backend.send({
