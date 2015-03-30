@@ -5,6 +5,8 @@ wget https://raw.githubusercontent.com/danielstern/ngAudio/master/app/angular.au
 wget https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css
 wget https://raw.githubusercontent.com/adamalbrecht/ngModal/master/dist/ng-modal.min.js
 wget https://raw.githubusercontent.com/adamalbrecht/ngModal/master/dist/ng-modal.css
-wget https://fortawesome.github.io/Font-Awesome/assets/font-awesome-4.2.0.zip
-unzip font-awesome-4.2.0.zip
-rm font-awesome-4.2.0.zip
+fa=font-awesome-4.3.0
+wget https://fortawesome.github.io/Font-Awesome/assets/$fa.zip
+unzip $fa.zip
+rm $fa.zip
+ln -s $fa font-awesome
