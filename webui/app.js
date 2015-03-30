@@ -10,6 +10,11 @@ var game = {
         'images/countdown_3.png',
         'images/countdown_4.png'
     ],
+    use_pi_sound: true, // true for server side sounds on the rpi, false for ng-audio
+    game_start_sound_file: 'sounds/start.wav',
+    game_start_sound2_file: 'sounds/start2.wav',
+    game_finish_sound_file: 'sounds/finish.wav',
+    game_lap_sound_file: 'sounds/lap.wav',
     show_game_finished: false,
     show_false_start: false,
     false_start_id: 0,
@@ -189,10 +194,40 @@ app.controller('sclx_ctrl', ['$rootScope', 'backend', 'ngAudio', function($rootS
     backend.connect();
     this.game = game;
 
-    $rootScope.game_start_sound = ngAudio.load("sounds/start.wav");
-    $rootScope.game_start_sound2 = ngAudio.load("sounds/start2.wav");
-    $rootScope.game_finish_sound = ngAudio.load("sounds/finish.wav");
-    $rootScope.game_lap_sound = ngAudio.load("sounds/lap.wav");
+    if (game.use_pi_sound) {
+        play_sound_rpi = function(file) {
+            console.log("play sound " + file);
+            backend.send({
+                type: "play_sound",
+                file: file
+            });
+        }
+        $rootScope.game_start_sound = {
+            play: function() {
+                play_sound_rpi(game.game_start_sound_file);
+            }
+        };
+        $rootScope.game_start_sound2 = {
+            play: function() {
+                play_sound_rpi(game.game_start_sound2_file);
+            }
+        };
+        $rootScope.game_finish_sound = {
+            play: function() {
+                play_sound_rpi(game.game_finish_sound_file);
+            }
+        };
+        $rootScope.game_lap_sound = {
+            play: function() {
+                play_sound_rpi(game.game_lap_sound_file);
+            }
+        };
+    } else {
+        $rootScope.game_start_sound = ngAudio.load(game.game_start_sound_file);
+        $rootScope.game_start_sound2 = ngAudio.load(game.game_start_sound2_file);
+        $rootScope.game_finish_sound = ngAudio.load(game.game_finish_sound_file);
+        $rootScope.game_lap_sound = ngAudio.load(game.game_lap_sound_file);
+    }
 
     this.save_settings = function() {
         backend.send({
