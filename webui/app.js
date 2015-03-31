@@ -20,6 +20,8 @@ var game = {
     false_start_id: 0,
     show_settings: false,
     we_have_a_winner: false,
+    show_laps_update: false,
+    laps_init: false,
     positions: [],
     cars: [
         { id: 0, laps: 0, last_time: 0, best_time: 0 },
@@ -110,6 +112,17 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
     }
 
     function on_laps_update(obj) {
+        if (game.laps_init) {
+            $rootScope.$apply(game.show_laps_update = true);
+            $rootScope.$apply(game.laps_last_update = Date.now());
+            $timeout(function() {
+                if (Date.now() - game.laps_last_update > 1900) {
+                    $rootScope.$apply(game.show_laps_update = false);
+                }
+            }, 2000);
+        } else {
+            $rootScope.$apply(game.laps_init = true);
+        }
         $rootScope.$apply(game.laps = obj.laps);
     }
 
