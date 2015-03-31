@@ -325,7 +325,7 @@ void handle_message(connection_ptr_t conn, message_ptr_t msg) {
                 std::uint8_t id = root["id"].asInt();
                 sclx->bind_car(id);
             } else if (root["type"].asString() == "play_sound") {
-                std::string cmd = "LD_LIBRARY_PATH=/opt/vc/lib:/usr/lib/omxplayer /usr/bin/omxplayer.bin -o both /opt/sclx_c7042/webui/";
+                std::string cmd = "/opt/sclx_c7042/rpi_sound.sh /opt/sclx_c7042/webui/";
                 cmd += root["file"].asString();
                 tasks::exec([cmd] { std::system(cmd.c_str()); });
             }
