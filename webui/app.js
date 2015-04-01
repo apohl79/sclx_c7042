@@ -16,6 +16,7 @@ var game = {
     game_finish_sound_file: 'sounds/finish.wav',
     game_lap_sound_file: 'sounds/lap.wav',
     game_ceremony_sound_file: 'sounds/ceremony.wav',
+    game_failed_start_sound_file: 'sounds/failed_start.wav',
     show_game_finished: false,
     show_false_start: false,
     false_start_id: 0,
@@ -107,6 +108,7 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
     }
     
     function on_false_start(obj) {
+        $rootScope.game_failed_start_sound.play();
         $rootScope.$apply(game.show_game_finished = false);
         $rootScope.$apply(game.false_start_id = obj.id);
         $rootScope.$apply(game.show_false_start = true);
@@ -242,12 +244,18 @@ app.controller('sclx_ctrl', ['$rootScope', 'backend', 'ngAudio', function($rootS
                 play_sound_rpi(game.game_ceremony_sound_file);
             }
         };
+        $rootScope.game_failed_start_sound = {
+            play: function() {
+                play_sound_rpi(game.game_failed_start_sound_file);
+            }
+        };
     } else {
         $rootScope.game_start_sound = ngAudio.load(game.game_start_sound_file);
         $rootScope.game_start_sound2 = ngAudio.load(game.game_start_sound2_file);
         $rootScope.game_finish_sound = ngAudio.load(game.game_finish_sound_file);
         $rootScope.game_lap_sound = ngAudio.load(game.game_lap_sound_file);
         $rootScope.game_ceremony_sound = ngAudio.load(game.game_ceremony_sound_file);
+        $rootScope.game_failed_start_sound = ngAudio.load(game.game_failed_start_sound_file);
     }
 
     this.save_settings = function() {
