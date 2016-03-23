@@ -82,6 +82,17 @@ class sclx_task : public tasks::serial_io_task {
         return m_game.state;
     }
     
+    bool car_mode_digital() const {
+        return m_digital_car_mode;
+    }
+
+    void set_digital_car_mode(bool digital = true) {
+        if (digital != m_digital_car_mode) {
+            m_digital_car_mode = digital;
+            m_update_car_mode = true;
+        }
+    }
+
     inline std::chrono::steady_clock::time_point last_update() const {
         return m_last_update;
     }
@@ -172,6 +183,9 @@ class sclx_task : public tasks::serial_io_task {
 
     std::uint8_t m_bind_id = 6;
     std::chrono::steady_clock::time_point m_bind_start;
+
+    bool m_digital_car_mode = true;
+    std::atomic<bool> m_update_car_mode;
 
     // event handlers
     button_func_t m_on_button_func = [](std::uint8_t) {};

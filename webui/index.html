@@ -18,9 +18,9 @@
       }
     </style>
   </head>
-  <body ng-controller="sclx_ctrl as sclx">
+  <body ng-controller="sclx_ctrl as sclx" style="padding-top: 61px;">
     <!-- Navbar -->
-    <div class="navbar navbar-inverse">
+    <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
           <p class="navbar-brand">Scalextric C7042 Racing</p>
@@ -45,9 +45,9 @@
       <table class="table table-striped table-vcenter">
         <thead>
           <tr>
-            <td width="20%"><big><b><i class="fa fa-trophy fa-1x"></i>&nbsp;Position</b></big></td>
-            <td width="20%"><big><b><i class="fa fa-car fa-1x"></i>&nbsp;Fahrer / Auto</b></big></td>
-            <td width="20%"><big><b><i class="fa fa-history fa-1x"></i>&nbsp;Runde</b></big></td>
+            <td width="10%"><big><b><i class="fa fa-trophy fa-1x"></i>&nbsp;Pos</b></big></td>
+            <td width="10%"><big><b><i class="fa fa-history fa-1x"></i>&nbsp;Runde</b></big></td>
+            <td width="40%"><big><b><i class="fa fa-car fa-1x"></i>&nbsp;Fahrer / Auto</b></big></td>
             <td width="20%"><big><b><i class="fa fa-flag fa-1x"></i>&nbsp;Letzte Runde</b></big></td>
             <td width="20%"><big><b><i class="fa fa-flag fa-1x"></i>&nbsp;Beste Runde</b></big></td>
           </tr>
@@ -55,8 +55,8 @@
         <tbody>
           <tr ng-repeat="id in sclx.game.positions">
             <td><big>{{$index + 1}}</big></td>
-            <td><big><img ng-src="{{sclx.game.drivers[sclx.game.controllers[id].driver].image}}" width="30px" /> {{sclx.game.drivers[sclx.game.controllers[id].driver].name}} (Controller {{id}})</big></td>
             <td><big>{{sclx.game.cars[id].laps}}</big></td>
+            <td><big><img ng-src="{{sclx.game.drivers[sclx.game.controllers[id].driver].image}}" width="30px" /> {{sclx.game.drivers[sclx.game.controllers[id].driver].name}} (Controller {{id}})</big></td>
             <td><big>{{sclx.game.cars[id].last_time | sclx_time_car}}</big></td>
             <td><big>{{sclx.game.cars[id].best_time | sclx_time_car}}</big></td>
           </tr>
@@ -126,7 +126,7 @@
     </modal-dialog>
 
     <!-- Settings -->
-    <modal-dialog show="sclx.game.show_settings" width="680px" height="600px" dialog-title="Einstellungen">
+    <modal-dialog show="sclx.game.show_settings" width="680px" height="660px" dialog-title="Einstellungen">
       <form name="settings_form" ng-submit="sclx.save_settings()">
         <!-- Controller -->
         <section ng-init="tab = 1">
@@ -136,6 +136,14 @@
           </ul>
           <div class="panel" ng-show="tab === 1">
             <div class="panel-body">
+              <table class="table table-hover table-vcenter">
+                <tr>
+                  <td><b><big>Digital: </big></b></td>
+                  <td class="text-right">
+                    <input type="checkbox" ng-model="sclx.game.digital_car_mode">
+                  </td>
+                </tr>
+              </table>
               <table class="table table-hover table-vcenter">
                 <thead>
                   <td><i class="fa fa-gamepad fa-2x"></i></td>
@@ -177,7 +185,7 @@
           <!-- Drivers -->
           <div class="panel" ng-show="tab === 2">
             <div class="panel-body">
-              <table class="table table-hover table-vcenter" table-height="306px" fixed-header>
+              <table class="table table-hover table-vcenter" table-height="367px" fixed-header>
                 <thead>
                   <tr>
                     <td width="65px" class="text-center"><i class="fa fa-image fa-2x"></i></td>

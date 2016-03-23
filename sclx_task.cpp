@@ -21,7 +21,8 @@ sclx_task::sclx_task(std::string port)
       m_port(port),
       m_last_update(std::chrono::steady_clock::now()),
       m_game_reset(false),
-      m_game_start(false) {
+      m_game_start(false),
+      m_update_car_mode(false) {
 
     init_term();
 
@@ -84,6 +85,14 @@ bool sclx_task::handle_event(tasks::worker* worker, int events) {
                 if (m_game.state == game_state_t::STARTING) {
                     set_game_state(game_state_t::RACE);
                 }
+            } else if (m_update_car_mode) {
+                // Send out an AUX packet to switch between analog/digital mode
+                m_out.packet().op_mode = sclx::OP_AUX;
+                m_out.packet().led_status = 0xff;
+                if (m_digital_car_mode) {
+                    m_out.packet().led_status &= ~sclx::PB_ANALOG_DIGITAL;
+                }
+                m_update_car_mode = false;
             } else {
                 // if a game is running, turn on the red led
                 if (m_game.state == game_state_t::RACE) {
@@ -95,6 +104,10 @@ bool sclx_task::handle_event(tasks::worker* worker, int events) {
             if (m_out.done()) {
                 // Done writing the packet
                 m_out.reset();
+                // Restore drive state
+                if (m_out.packet().op_mode != sclx::OP_DRIVE) {
+                    m_out.packet().op_mode = sclx::OP_DRIVE;
+                }
                 // Toggle to read mode
                 set_events(EV_READ);
                 update_watcher(worker);
@@ -324,7 +337,7 @@ void sclx_task::update_handsets() {
     if (m_game.state != game_state_t::STOPPED) {
         for (int i = 0; i < 6; i++) {
             // apply the power/brake/lane change settings from the handsets
-            if (m_game.state == game_state_t::TRAINING || (m_cars[i].active && !m_cars[i].finished)) {
+            if (m_game.state == game_state_t::TRAINING || (m_cars[i].active /*&& !m_cars[i].finished*/)) {
                 std::uint8_t cur = ~in_cur.packet().handset[i];
                 std::uint8_t last = ~in_last.packet().handset[i];
                 if (cur != last) {
@@ -342,7 +355,7 @@ void sclx_task::update_handsets() {
                         set_power(i, sclx::POWER & cur);
                     }
                 }
-            } else if (m_cars[i].active && m_cars[i].finished) {
+            }/* else if (m_cars[i].active && m_cars[i].finished) {
                 std::uint8_t power = ~m_out.packet().drive[i] & sclx::POWER;
                 if (power > 0) {
                     // after the finish line we want the car to go for some time
@@ -353,7 +366,7 @@ void sclx_task::update_handsets() {
                         set_power(i, 0);
                     }
                 }
-            }
+            }*/
         }
     }
 }

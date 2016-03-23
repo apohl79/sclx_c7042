@@ -44,7 +44,8 @@ var game = {
     drivers: [
         { id: 0, name: "Unbekannt", power: 100, image: 'images/driver.png' },
     ],
-    bind_car_id: 6
+    bind_car_id: 6,
+    digital_car_mode: true
 }; 
 
 app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout) {
@@ -149,6 +150,7 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
             $rootScope.$apply(game.drivers = obj.drivers);
         }
         $rootScope.$apply(game.controllers = obj.controllers);        
+        $rootScope.$apply(game.digital_car_mode = obj.digital_car_mode);        
     }
 
     function on_controller_changed(obj) {
@@ -262,7 +264,8 @@ app.controller('sclx_ctrl', ['$rootScope', 'backend', 'ngAudio', function($rootS
         backend.send({
             type: "settings",
             drivers: this.game.drivers,
-            controllers: this.game.controllers
+            controllers: this.game.controllers,
+            digital_car_mode: this.game.digital_car_mode
         });
         this.game.show_settings = false;
     };

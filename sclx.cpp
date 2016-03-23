@@ -49,6 +49,7 @@ struct controller_t {
 
 std::map<int, driver_t> driver_map;
 controller_t controllers[6];
+bool digital_car_mode = true;
 
 void load_settings() {
     std::ifstream file;
@@ -76,6 +77,10 @@ void load_settings() {
             if (root.isMember("laps")) {
                 laps = root["laps"].asInt();
             }
+            if (root.isMember("digital_car_mode")) {
+                digital_car_mode = root["digital_car_mode"].asBool();
+            }
+            sclx->set_digital_car_mode(digital_car_mode);
             terr("loaded settings from " << settings_path << std::endl);
         }
     }
@@ -99,6 +104,7 @@ void save_settings() {
         root["controllers"].append(ctrl);
     }
     root["laps"] = laps;
+    root["digital_car_mode"] = digital_car_mode;
     std::ofstream file;
     file.open(settings_path);
     if (file.good()) {
@@ -320,6 +326,8 @@ void handle_message(connection_ptr_t conn, message_ptr_t msg) {
                     }
                     sclx->set_power_rate(id, driver_map[controllers[id].driver].power);
                 }
+                digital_car_mode = root["digital_car_mode"].asBool();
+                sclx->set_digital_car_mode(digital_car_mode);
                 save_settings();
             } else if (root["type"].asString() == "bind_car") {
                 std::uint8_t id = root["id"].asInt();
@@ -384,6 +392,7 @@ int main(int argc, char** argv) {
                 ctrl["connected"] = controllers[i].connected;
                 root["controllers"].append(ctrl);
             }
+            root["digital_car_mode"] = digital_car_mode;
             write_json_to_ws(root, conn);
             root["type"] = "game_state";
             root["state"] = game_state_to_string(sclx->game_state());

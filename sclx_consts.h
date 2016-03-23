@@ -2,6 +2,9 @@
 #define SCLX_CONSTS_H_
 
 struct sclx {
+    // Operation
+    static constexpr std::uint8_t OP_DRIVE = 0xff;
+    static constexpr std::uint8_t OP_AUX = 0xbf;
     // Bit definitions
     static constexpr std::uint8_t BRAKE = 1 << 7;
     static constexpr std::uint8_t LANE_CHANGE = 1 << 6;
@@ -28,6 +31,7 @@ struct sclx {
     static constexpr std::uint8_t BTN_ENTER = 1 << 3;
     static constexpr std::uint8_t BTN_LEFT = 1 << 4;
     static constexpr std::uint8_t BTN_DOWN = 1 << 5;
+    static constexpr std::uint8_t PB_ANALOG_DIGITAL = 1 << 7;
 };
 
 #endif  // SCLX_CONSTS_H_
