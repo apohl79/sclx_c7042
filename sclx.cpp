@@ -1,23 +1,23 @@
-#include <iostream>
 #include <cstdint>
 #include <cstdlib>
-#include <sstream>
 #include <fstream>
+#include <iostream>
+#include <sstream>
 #include <thread>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 //#define _WITH_PUT_TIME
 #define _WITH_SHORT_LOG
 #include <tasks/logging.h>
 
-#include <tasks/serial/term.h>
 #include <tasks/exec.h>
+#include <tasks/serial/term.h>
 
 #include <json/json.h>
 
-#include "sclx_task.h"
 #include "sclx_cycle_task.h"
+#include "sclx_task.h"
 
 #include "websocket/server_ws.hpp"
 
@@ -36,16 +36,18 @@ struct driver_t {
     std::string name;
     std::uint8_t power;
     std::string image;
-    driver_t() : id(0), power(100) {
-    }
+    driver_t() : id(0), power(100) {}
 };
 
 struct controller_t {
     std::uint8_t driver;
     bool connected;
-    controller_t() : driver(0), connected(false) {
-    }
+    std::string image;
+    controller_t() : driver(0), connected(false) {}
 };
+
+std::string controller_images[] = {"images/driver_green.png", "images/driver_red.png",    "images/driver_orange.png",
+                                   "images/driver_white.png", "images/driver_yellow.png", "images/driver_blue.png"};
 
 std::map<int, driver_t> driver_map;
 controller_t controllers[6];
@@ -70,8 +72,8 @@ void load_settings() {
             tmp = root["controllers"];
             for (Json::ArrayIndex i = 0; i < tmp.size(); i++) {
                 int id = tmp[i]["id"].asInt();
-                int driverid = tmp[i]["driver"].asInt();
-                controllers[id].driver = driverid;
+                controllers[id].driver = tmp[i]["driver"].asInt();
+                controllers[id].image = controller_images[id];
                 sclx->set_power_rate(id, driver_map[driverid].power);
             }
             if (root.isMember("laps")) {
@@ -101,6 +103,7 @@ void save_settings() {
         Json::Value ctrl;
         ctrl["id"] = i;
         ctrl["driver"] = controllers[i].driver;
+        ctrl["image"] = controller_images[i];
         root["controllers"].append(ctrl);
     }
     root["laps"] = laps;
@@ -300,8 +303,8 @@ void handle_message(connection_ptr_t conn, message_ptr_t msg) {
     Json::Reader reader;
     Json::Value root;
     if (reader.parse(data, root, false)) {
-        //Json::StyledStreamWriter writer;
-        //writer.write(std::cout, root);
+        // Json::StyledStreamWriter writer;
+        // writer.write(std::cout, root);
         if (root.isMember("type")) {
             if (root["type"].asString() == "settings") {
                 // settings update
@@ -356,7 +359,7 @@ int main(int argc, char** argv) {
         disp->start();
 
         starting = false;
-        
+
         sclx = new sclx_task(argv[1]);
         sclx->on_finish([disp] { disp->terminate(); });
         sclx->on_button_press(button_press);

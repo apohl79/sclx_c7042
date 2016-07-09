@@ -34,19 +34,19 @@ var game = {
         { id: 5, laps: 0, last_time: 0, best_time: 0 },
     ],
     controllers: [
-        { id: 0, driver: 0, connected: false },
-        { id: 1, driver: 0, connected: false },
-        { id: 2, driver: 0, connected: false },
-        { id: 3, driver: 0, connected: false },
-        { id: 4, driver: 0, connected: false },
-        { id: 5, driver: 0, connected: false },
+        { id: 0, driver: 0, connected: false, image: 'images/driver_green.png' },
+        { id: 1, driver: 0, connected: false, image: 'images/driver_red.png' },
+        { id: 2, driver: 0, connected: false, image: 'images/driver_orange.png' },
+        { id: 3, driver: 0, connected: false, image: 'images/driver_white.png' },
+        { id: 4, driver: 0, connected: false, image: 'images/driver_yellow.png' },
+        { id: 5, driver: 0, connected: false, image: 'images/driver_blue.png' },
     ],
     drivers: [
         { id: 0, name: "Unbekannt", power: 100, image: 'images/driver.png' },
     ],
     bind_car_id: 6,
     digital_car_mode: true
-}; 
+};
 
 app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout) {
     var backend = {};
@@ -76,7 +76,7 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
         }
         $rootScope.$apply(game.state = state);
     }
-    
+
     function on_game_update(obj) {
         if (game.state == "Achtung") {
             $rootScope.$apply(game.time = 0);
@@ -85,7 +85,7 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
         }
         $rootScope.$apply(game.positions = obj.positions);
     }
-    
+
     function on_game_finished(obj) {
         $rootScope.game_ceremony_sound.play();
         $rootScope.$apply(game.time = obj.time);
@@ -93,7 +93,7 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
         $rootScope.$apply(game.show_game_finished = true);
         $timeout(function() {$rootScope.$apply(game.show_game_finished = false);}, 18000);
     }
-    
+
     function on_lap_count(obj) {
         if (game.state == "Rennen" && obj.lap == game.laps && !game.we_have_a_winner) {
             $rootScope.game_finish_sound.play();
@@ -107,13 +107,13 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
             $rootScope.$apply(game.cars[obj.id].best_time = obj.lap_time);
         }
     }
-    
+
     function on_false_start(obj) {
         $rootScope.game_failed_start_sound.play();
         $rootScope.$apply(game.show_game_finished = false);
         $rootScope.$apply(game.false_start_id = obj.id);
         $rootScope.$apply(game.show_false_start = true);
-        $timeout(function() {$rootScope.$apply(game.show_false_start = false);}, 5000);        
+        $timeout(function() {$rootScope.$apply(game.show_false_start = false);}, 5000);
     }
 
     function on_laps_update(obj) {
@@ -149,12 +149,12 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
         if (obj.drivers && obj.drivers.length > 0) {
             $rootScope.$apply(game.drivers = obj.drivers);
         }
-        $rootScope.$apply(game.controllers = obj.controllers);        
-        $rootScope.$apply(game.digital_car_mode = obj.digital_car_mode);        
+        $rootScope.$apply(game.controllers = obj.controllers);
+        $rootScope.$apply(game.digital_car_mode = obj.digital_car_mode);
     }
 
     function on_controller_changed(obj) {
-        $rootScope.$apply(game.controllers[obj.id].connected = obj.connected);                
+        $rootScope.$apply(game.controllers[obj.id].connected = obj.connected);
     }
 
     backend.connect = function() {
@@ -205,7 +205,7 @@ app.factory('backend', ['$rootScope', '$timeout', function($rootScope, $timeout)
             }
         };
     }
-    
+
     return backend;
 }]);
 
@@ -334,4 +334,3 @@ app.filter('sclx_time_clock', function() {
         return out;
     };
 });
-
