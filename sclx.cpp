@@ -294,6 +294,7 @@ void controller_change(std::uint8_t id, bool connected) {
     root["type"] = "controller_changed";
     root["id"] = id;
     root["connected"] = connected;
+    root["image"] = controller_images[id];
     write_json_to_ws(root);
 }
 
@@ -394,6 +395,7 @@ int main(int argc, char** argv) {
                 ctrl["id"] = i;
                 ctrl["driver"] = controllers[i].driver;
                 ctrl["connected"] = controllers[i].connected;
+                ctrl["image"] = controller_images[i];
                 root["controllers"].append(ctrl);
             }
             root["digital_car_mode"] = digital_car_mode;
