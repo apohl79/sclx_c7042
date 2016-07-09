@@ -72,7 +72,8 @@ void load_settings() {
             tmp = root["controllers"];
             for (Json::ArrayIndex i = 0; i < tmp.size(); i++) {
                 int id = tmp[i]["id"].asInt();
-                controllers[id].driver = tmp[i]["driver"].asInt();
+                int driverid = tmp[i]["driver"].asInt();
+                controllers[id].driver = driverid;
                 controllers[id].image = controller_images[id];
                 sclx->set_power_rate(id, driver_map[driverid].power);
             }

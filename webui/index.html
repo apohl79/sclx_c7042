@@ -56,7 +56,7 @@
           <tr ng-repeat="id in sclx.game.positions">
             <td><big>{{$index + 1}}</big></td>
             <td><big>{{sclx.game.cars[id].laps}}</big></td>
-            <td><big><img ng-src="{{sclx.game.drivers[sclx.game.controllers[id].driver].image}}" width="30px" /> {{sclx.game.drivers[sclx.game.controllers[id].driver].name}} (Controller {{id}})</big></td>
+            <td><big><img ng-src="{{sclx.game.controllers[id].image}}" width="30px" /> {{sclx.game.drivers[sclx.game.controllers[id].driver].name}} (Controller {{id}})</big></td>
             <td><big>{{sclx.game.cars[id].last_time | sclx_time_car}}</big></td>
             <td><big>{{sclx.game.cars[id].best_time | sclx_time_car}}</big></td>
           </tr>
@@ -90,7 +90,7 @@
           <td style="text-align:right">
             <h1>
               {{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[0]].driver].name}}
-              <img ng-src="{{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[0]].driver].image}}" width="60px" />
+              <img ng-src="{{sclx.game.controllers[sclx.game.positions[0]].image}}" width="60px" />
             </h1>
           </td>
         </tr>
@@ -99,7 +99,7 @@
           <td style="text-align:right">
             <h2>
               {{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[1]].driver].name}}
-              <img ng-src="{{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[1]].driver].image}}" width="60px" />
+              <img ng-src="{{sclx.game.controllers[sclx.game.positions[1]].image}}" width="60px" />
             </h2>
           </td>
         </tr>
@@ -108,7 +108,7 @@
           <td style="text-align:right">
             <h3>
               {{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[2]].driver].name}}
-              <img ng-src="{{sclx.game.drivers[sclx.game.controllers[sclx.game.positions[2]].driver].image}}" width="60px" />
+              <img ng-src="{{sclx.game.controllers[sclx.game.positions[2]].image}}" width="60px" />
             </h3>
           </td>
         </tr>
